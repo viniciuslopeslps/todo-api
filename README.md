@@ -1,3 +1,3 @@
 # todo-api
 
-Project to study nodejs
+Project to study javascript
