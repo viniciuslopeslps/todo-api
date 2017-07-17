@@ -1,5 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var _ = require("underscore");
+
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
@@ -19,16 +21,10 @@ app.get("/todos", function(req, res){
 //colocar :nomeDoParametro quando quiser colocar um parametro adicional	
 app.get("/todos/:id", function(req, res){
 	var id = parseInt(req.params.id);
-	var matched;
-	for(var i=0; i < todos.length;i++){
-		if(todos[i].id == id){
-			matched = todos[i];
-			break;
-		}
-	}
-
+	var matched = _.findWhere(todos, {"id": id});
+	
 	if(matched !== undefined){
-		console.log("found " + matched);
+		console.log("found " + matched.id);
 		res.json(matched);
 	}
 	console.log("Not found");
@@ -36,7 +32,11 @@ app.get("/todos/:id", function(req, res){
 });
 
 app.post("/todos", function(req, res){
-    var body = req.body;
+    var body = _.pick(req.body, "completed","description","id"); //Return a copy, filtered to only values in whitelisted keys 
+    if(! _.isBoolean(body.completed) || ! _.isString(body.description) || body.description.trim().length === 0){
+    	res.status(400).send();
+    }
+    body.description = body.description.trim();
     body.id = todoNextId++;
     todos.push(body);
     console.log("Adicionado com sucesso!");
