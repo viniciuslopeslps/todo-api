@@ -43,6 +43,18 @@ app.post("/todos", function(req, res){
     res.json(body);
 });
 
+app.delete("/todos/:id", function(req, res){
+	var id = parseInt(req.params.id);
+	var matched = _.findWhere(todos, {"id": id});
+	if(!matched){
+		res.status(400).json({"error": "Not found"});
+	}
+	todos = _.without(todos, matched);
+	console.log("Removido com sucesso!");
+	res.json(matched);
+});
+
+
 app.listen(PORT, function(){
 	console.log("Server running at: " + PORT);
 });
