@@ -32,7 +32,7 @@ app.get("/todos/:id", function(req, res){
 });
 
 app.post("/todos", function(req, res){
-    var body = _.pick(req.body, "completed","description","id"); //Return a copy, filtered to only values in whitelisted keys 
+    var body = _.pick(req.body, "completed","description"); //Return a copy, filtered to only values in whitelisted keys 
     if(! _.isBoolean(body.completed) || ! _.isString(body.description) || body.description.trim().length === 0){
     	res.status(400).send();
     }
@@ -54,6 +54,32 @@ app.delete("/todos/:id", function(req, res){
 	res.json(matched);
 });
 
+app.put("/todos/:id", function(req, res){
+    var id = parseInt(req.params.id);
+	var matched = _.findWhere(todos, {"id": id});
+	if(!matched){
+		return res.status(404).json({"error": "Not found"});
+	}
+    var body = _.pick(req.body, "completed","description");
+    var validAttributes = {}; 
+    
+    if(body.hasOwnProperty("completed") && _.isBoolean(body.completed)){
+        validAttributes.completed = body.completed;
+    }
+    else{
+        return res.status(400).send();
+    }
+    
+     if(body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0){
+        validAttributes.description = body.description;
+    }
+    else{
+        return res.status(400).send();
+    }
+    
+    _.extend(matched, validAttributes);
+    res.json(matched);
+});
 
 app.listen(PORT, function(){
 	console.log("Server running at: " + PORT);
