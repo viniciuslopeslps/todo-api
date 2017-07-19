@@ -14,7 +14,7 @@ app.get("/", function(req, res){
 	res.send("TODO API Root");
 });
 
-//get /todos?completed=true (usando query filter)
+//get /todos?completed=true&q=work (usando query filter)
 app.get("/todos", function(req, res){
 	//tudo que vem como uma query no parametro 
 	var queryParams = req.query;
@@ -25,6 +25,12 @@ app.get("/todos", function(req, res){
 	}else if(queryParams.hasOwnProperty("completed") && queryParams.completed==="false"){
 			filteredTodos = _.where(filteredTodos, {completed:false})
 	}
+    
+    if(queryParams.hasOwnProperty("q") && queryParams.q.length > 0){
+       filteredTodos = _.filter(filteredTodos, function(item){ 
+           return item.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1
+       });
+    }
 
 	res.json(filteredTodos);
 });
