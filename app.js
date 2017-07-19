@@ -14,7 +14,7 @@ app.get("/", function(req, res){
 	res.send("TODO API Root");
 });
 
-//get /todos?completed=true
+//get /todos?completed=true (usando query filter)
 app.get("/todos", function(req, res){
 	//tudo que vem como uma query no parametro 
 	var queryParams = req.query;
