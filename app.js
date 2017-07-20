@@ -1,6 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var _ = require("underscore");
+var db = require("./db.js");
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -49,15 +50,22 @@ app.get("/todos/:id", function(req, res){
 });
 
 app.post("/todos", function(req, res){
-    var body = _.pick(req.body, "completed","description"); //Return a copy, filtered to only values in whitelisted keys 
-    if(! _.isBoolean(body.completed) || ! _.isString(body.description) || body.description.trim().length === 0){
-    	res.status(400).send();
-    }
-    body.description = body.description.trim();
-    body.id = todoNextId++;
-    todos.push(body);
-    console.log("Adicionado com sucesso!");
-    res.json(body);
+    var body = _.pick(req.body, "completed", "description"); //Return a copy, filtered to only values in whitelisted keys 
+    db.todo.create(body).then(function (todo) {
+		res.json(todo.toJSON());
+	}, function (e) {
+		res.status(400).json(e);
+	});                  
+          
+    //FEITO SEM USARO O SEQUELIZE
+//    if(! _.isBoolean(body.completed) || ! _.isString(body.description) || body.description.trim().length === 0){
+//    	res.status(400).send();
+//    }
+//    body.description = body.description.trim();
+//    body.id = todoNextId++;
+//    todos.push(body);
+//    console.log("Adicionado com sucesso!");
+//    res.json(body);
 });
 
 app.delete("/todos/:id", function(req, res){
@@ -98,6 +106,8 @@ app.put("/todos/:id", function(req, res){
     res.json(matched);
 });
 
-app.listen(PORT, function(){
-	console.log("Server running at: " + PORT);
+db.sequelize.sync().then(function() {
+	app.listen(PORT, function() {
+		console.log('Express listening on port ' + PORT + '!');
+	});
 });
