@@ -1,8 +1,16 @@
 var Sequelize = require("sequelize"); //orm para nodejs
-var sequelize = new Sequelize(undefined, undefined, undefined, {
-    "dialect": "sqlite",
-    "storage": __dirname + "/data/dev-todo-api.sqlite"
-});
+var env = process.env.NODE_ENV || "dev";
+var sequelize;
+if(env !== "dev"){
+	sequelize = new Sequelize(process.env.DATABASE_URL, {
+		dialect: 'postgres'
+	});
+} else {
+    sequelize = new Sequelize(undefined, undefined, undefined, {
+        "dialect": "sqlite",
+        "storage": __dirname + "/data/dev-todo-api.sqlite"
+    });
+}
 
 var db = {};
 
