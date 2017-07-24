@@ -13,5 +13,15 @@ module.exports = function(sequelize, DataTypes){
           "allowNull": false,
           "defaultValue": false
         }
+    },{
+        "hooks":{
+            //é possível executar funcoes antes e depois de inserir um dado
+            //estamos colocando um email para lowercase
+            "beforeCreate": function(todo, options){
+                if(typeof todo.description === 'string'){
+                    todo.description = todo.description.trim();
+                }
+            }
+        }
     });
 };

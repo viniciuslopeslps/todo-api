@@ -15,5 +15,15 @@ module.exports = function(sequelize, DateTypes){
                 len: [7, 100]
             }
         }
+    },{
+        "hooks":{
+            //é possível executar funcoes antes e depois de inserir um dado
+            //estamos colocando um email para lowercase
+            "beforeValidate": function(user, options){
+                if(typeof user.email === 'string'){
+                    user.email = user.email.toLowerCase();
+                }
+            }
+        }
     });
 }
