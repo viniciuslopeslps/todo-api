@@ -15,6 +15,7 @@ if(env !== "dev"){
 var db = {};
 
 db.todo = sequelize.import(__dirname + "/models/todo.js"); //aponta para o modulo
+db.user = sequelize.import(__dirname + "/models/user.js");
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

@@ -182,6 +182,15 @@ app.put("/todos/:id", function(req, res){
     //res.json(matched);
 });
 
+app.post("/users", function(req, res){
+    var body = _.pick(req.body, "email", "password"); //Return a copy, filtered to only values in whitelisted keys 
+    db.user.create(body).then(function (user) {
+		res.json(user.toJSON());
+	}, function (e) {
+		res.status(400).json(e);
+	});                  
+});
+
 db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port ' + PORT + '!');
