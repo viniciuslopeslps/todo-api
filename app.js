@@ -133,29 +133,53 @@ app.delete("/todos/:id", function(req, res){
 
 app.put("/todos/:id", function(req, res){
     var id = parseInt(req.params.id);
-	var matched = _.findWhere(todos, {"id": id});
-	if(!matched){
-		return res.status(404).json({"error": "Not found"});
-	}
     var body = _.pick(req.body, "completed","description");
     var validAttributes = {}; 
-    
-    if(body.hasOwnProperty("completed") && _.isBoolean(body.completed)){
+
+    if(body.hasOwnProperty("completed")){
         validAttributes.completed = body.completed;
     }
-    else{
-        return res.status(400).send();
-    }
-    
-     if(body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0){
+    if(body.hasOwnProperty("description")){
         validAttributes.description = body.description;
     }
-    else{
-        return res.status(400).send();
-    }
+
+    db.todo.findById(id).then(function(todo){
+    	if(todo){
+    		todo.update(validAttributes).then(function(todo){
+    			res.json(todo.toJSON());
+    		},function(e){
+    			res.status(400).json({"error": e})
+    		})
+    	}else{
+    		res.status(404).send();
+    	}
+    },function(e){
+    	res.status(500).json({"error": e})
+    });
+
+    ///sem sequilize
+	//var matched = _.findWhere(todos, {"id": id});
+	//if(!matched){
+	//	return res.status(404).json({"error": "Not found"});
+	//}
+
     
-    _.extend(matched, validAttributes);
-    res.json(matched);
+    //if(body.hasOwnProperty("completed") && _.isBoolean(body.completed)){
+    //    validAttributes.completed = body.completed;
+    //}
+    //else{
+    //    return res.status(400).send();
+    //}
+    
+    // if(body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0){
+    //    validAttributes.description = body.description;
+    //}
+    //else{
+    //    return res.status(400).send();
+    //}
+    
+    //_.extend(matched, validAttributes);
+    //res.json(matched);
 });
 
 db.sequelize.sync().then(function() {
