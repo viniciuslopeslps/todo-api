@@ -3,7 +3,6 @@ var _ = require("underscore");
 var cryptojs = require("crypto-js");
 var jwt = require("jsonwebtoken");
 
-
 module.exports = function(sequelize, DataTypes){
 	var user = sequelize.define('user', {
 		"email": {
@@ -64,6 +63,29 @@ module.exports = function(sequelize, DataTypes){
 						reject();
 					})
 				});
+			},
+            findByToken: function(token) {
+				return new Promise(function(resolve, reject) {
+					try {
+						var decodedJWT = jwt.verify(token, 'jwtpassword');
+						var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'cryptoPwd');
+						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8));
+
+						user.findById(tokenData.id).then(function (user) {
+							if (user) {
+								resolve(user);
+							} else {
+								reject();
+							}
+						}, function (e) {
+                            console.log(e);
+							reject();
+						});
+					} catch (e) {
+                        console.log(e);
+						reject();
+					}
+				});
 			}
 		},
 		"instanceMethods": {
@@ -76,11 +98,12 @@ module.exports = function(sequelize, DataTypes){
 					return undefined;
 				}
 				try {
-					var stringData = JSON.stringify({"id": this.get("id"), "type":type}); //cria uma string com o json dos dados
+					var stringData = JSON.stringify({"id": this.get("id"), "type": type}); //cria uma string com o json dos dados
 					var encryptedData = cryptojs.AES.encrypt(stringData, "cryptoPwd").toString(); //encriptografa
 					var token = jwt.sign({
 						"token": encryptedData
-					},"jwtpassword");
+					}, "jwtpassword");
+                    
 					return token;
 				} catch(e) {
 					console.log(e);
