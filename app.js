@@ -86,7 +86,12 @@ app.post("/todos", middleware.requireAuthentication, function(req, res){
     var body = _.pick(req.body, "completed", "description"); //Return a copy, filtered to only values in whitelisted keys 
     body.description = body.description.trim();
     db.todo.create(body).then(function (todo) {
-		res.json(todo.toJSON());
+    	//res.user abaixo foi adicionado do requireAuthentication
+    	req.user.addTodo(todo).then(function(){
+    		return todo.reload();
+    	}).then(function(todo){
+    		res.json(todo.toJSON());
+    	})
 	}, function (e) {
 		res.status(400).json(e);
 	});                  
