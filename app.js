@@ -196,7 +196,12 @@ app.post("/users/login", function(req, res){
     var body = _.pick(req.body, "email", "password"); //Return a copy, filtered to only values in whitelisted keys 
     
     db.user.authenticate(body).then(function(user){
-    	res.header("Auth", user.generateToken('authentication')).json(user.toPublicJson());
+    	var token = user.generateToken('authentication');
+    	if(token !==undefined){
+    		res.header("Auth", token).json(user.toPublicJson());
+    	}else{
+    		res.status(401).send();
+    	}
     },function(e){
     	res.status(401).send();
     });
