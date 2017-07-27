@@ -232,6 +232,15 @@ app.post("/users/login", function(req, res){
     });
 });
 
+app.delete("/users/logout", middleware.requireAuthentication, function(req, res){
+    req.token.destroy().then(function(){
+      res.status(204).send();  
+    },function(e){
+        console.log(e);
+        res.status(500).json(e);
+    });
+});
+
 db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port ' + PORT + '!');
