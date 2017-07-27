@@ -12,7 +12,7 @@ var todoNextId = 1;
 
 //body parser é um middleware a nivel de aplicacao, ou seja, vai interceptar todas as requisiçoes e pegar os seus jsons
 app.use(bodyParser.json());
-app.use(middleware.loggin);
+app.use(middleware.logger);
 
 app.get("/", function(req, res){
 	res.send("TODO API Root");
@@ -216,15 +216,18 @@ app.post("/users", function(req, res){
 
 app.post("/users/login", function(req, res){
     var body = _.pick(req.body, "email", "password"); //Return a copy, filtered to only values in whitelisted keys 
+    var userInstance;
     
     db.user.authenticate(body).then(function(user){
     	var token = user.generateToken('authentication');
-    	if(token !==undefined){
-    		res.header("Auth", token).json(user.toPublicJson());
-    	}else{
-    		res.status(401).send();
-    	}
-    },function(e){
+        userInstance = user;
+        
+        return db.token.create({
+            token: token
+        });
+    }).then(function(tokenInstance){
+        res.header("Auth", tokenInstance.get("token")).json(userInstance.toPublicJson());
+    }).catch(function(){
     	res.status(401).send();
     });
 });

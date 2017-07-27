@@ -9,7 +9,7 @@ module.exports = function (db) {
 				res.status(401).send();
 			});
 		},
-		loggin: function(req, res, next){
+		logger: function(req, res, next){
 			console.log("Request: " + new Date().toString() + " "+ req.method + " " + req.originalUrl);
 			next();
 		}
