@@ -12,6 +12,7 @@ var todoNextId = 1;
 
 //body parser é um middleware a nivel de aplicacao, ou seja, vai interceptar todas as requisiçoes e pegar os seus jsons
 app.use(bodyParser.json());
+app.use(middleware.loggin);
 
 app.get("/", function(req, res){
 	res.send("TODO API Root");
