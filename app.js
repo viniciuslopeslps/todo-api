@@ -22,7 +22,9 @@ app.get("/todos", middleware.requireAuthentication, function(req, res){
 	//tudo que vem como uma query no parametro 
 	var queryParams = req.query;
 
-	var where = {};
+	var where = {
+		userId: req.user.get("id")
+	};
 
 	if( queryParams.hasOwnProperty("completed") && queryParams.completed==="true"){
 		where.completed = true;
@@ -60,9 +62,15 @@ app.get("/todos", middleware.requireAuthentication, function(req, res){
 
 //colocar :nomeDoParametro quando quiser colocar um parametro adicional	
 app.get("/todos/:id", middleware.requireAuthentication, function(req, res){
+	//recebe o valor como parametro
 	var id = parseInt(req.params.id);
 
-	db.todo.findById(id).then(function(todo){
+	db.todo.findOne({
+		where:{
+			id: id,
+			userId: req.user.get("id")
+		}
+	}).then(function(todo){
 		if(!!todo){
 			res.json(todo.toJSON())
 		}else{
@@ -72,6 +80,8 @@ app.get("/todos/:id", middleware.requireAuthentication, function(req, res){
 		res.status(500).json(e);
 	});
 
+
+	//sem o sequilize
 	//var matched = _.findWhere(todos, {"id": id});
 	
 	//if(matched !== undefined){
@@ -111,7 +121,8 @@ app.delete("/todos/:id", middleware.requireAuthentication, function(req, res){
 	var id = parseInt(req.params.id, 10);
     db.todo.destroy({
         where: {
-            id: id
+            id: id,
+            userId: req.user.get("id")
         }
     }).then(function(rowsDeleted){
         if(rowsDeleted === 0){
@@ -149,7 +160,12 @@ app.put("/todos/:id", middleware.requireAuthentication, function(req, res){
         validAttributes.description = body.description;
     }
 
-    db.todo.findById(id).then(function(todo){
+    db.todo.findOne({
+    	where:{
+    		id: id,
+    		userId: req.user.get("id")
+    	}
+    }).then(function(todo){
     	if(todo){
     		todo.update(validAttributes).then(function(todo){
     			res.json(todo.toJSON());
